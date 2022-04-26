@@ -1,17 +1,17 @@
 const express = require('express');
-const { use } = require('express/lib/application');
-const req = require('express/lib/request');
-const res = require('express/lib/response');
+const cors = require('cors')
 
 const app = express();
 
 app.use(express.json()) //Middle Ware for parsing your requests to objects in JSON format, when we are passing the request in JSON 
 
+app.use(cors()) //Used so that no other or third party application can connect to our server
+
 const database = [
     {
         name: "Ishan",
-        email: "ishang17@gmail.com",
-        password: "cookies",
+        email: "i",
+        password: "c",
         entries: 0
     }, 
     {
