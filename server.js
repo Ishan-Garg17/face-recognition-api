@@ -55,6 +55,6 @@ app.put('/image:id',(req,res)=>{
     res.send(req.params)
 })
 
-app.listen(3000 , ()=>{
+app.listen(3002 , ()=>{
     console.log("app is running")
 })
