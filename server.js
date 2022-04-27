@@ -46,10 +46,10 @@ app.post('/register',(req,res)=>{
 app.post('/signin',(req,res)=>{
     const {email,password} =  req.body
     if(email === database[0].email && password === database[0].password){
-    res.status(200).json("Success")
+    res.status(200).json(database[0])
     }
     else{
-        res.status(400).json("Error Logging in")
+        res.status(400).json(false)
     }
 })
 
