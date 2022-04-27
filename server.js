@@ -6,7 +6,7 @@ const app = express();
 const knex = require('knex')
 
 
-const postgress = knex({
+const db = knex({
     client: 'pg',
     connection: {
       host : '127.0.0.1',
@@ -18,7 +18,7 @@ const postgress = knex({
 });
 
 
-console.log(postgress.select('*').from('app_user'))
+// console.log(db.select('*').from('app_user'))
 
 
 
@@ -31,39 +31,26 @@ app.use(express.json()) //Middle Ware for parsing your requests to objects in JS
 
 app.use(cors()) //Used so that no other or third party application can connect to our server
 
-const database = [
-    {
-        id: 1,
-        name: "Ishan",
-        email: "i",
-        password: "c",
-        entries: 0
-    }, 
-    {
-        id: 2,
-        name: "Rahul",
-        email: "rahul17@gmail.com",
-        password: "donkies",
-        entries: 0
-    }
-]
 
 app.get('/',(req,res)=>{
-    res.json(database)
 })
 
 
 app.post('/register',(req,res)=>{
-    const {name,email,password} = req.body;
-    user = {
-            id: database.length+1,
-            name: name,
-            email: email,
-            password: password,
-            entries: 0
-    }
-    database.push(user);
-    res.json(database[database.length-1])
+    const {name,email} = req.body;
+    db('app_user')
+    .returning('*') //now we add this returning when we want to return the entry that is being inserted into the database  
+    .insert({
+        email: email,
+        name: name,
+        joined: new Date()
+    }) //Agar insert operation jo hai hamara vo success hojayega tabhi .then mein jayega varna error mein to jata nhi hai so .then mein ham aage conditions laga sakte hain
+        .then(user => {
+                res.send(user[0]) //Now this will return the response in json format with our user object
+            })
+    .catch(err=>{
+        res.status(400).json(err)
+    })
 })
 
 
@@ -77,13 +64,32 @@ app.post('/signin',(req,res)=>{
     }
 })
 
-// :id can be used as url params as after : the name is considered as variable name and we can access it using req.params
-app.put('/image:id',(req,res)=>{
 
-    // Why we need :id along with route? -> because we need to update the entries of that particular user in our data base also
+app.put('/image',(req,res)=>{
 
-    res.send(req.params)
+    
+
 })
+
+
+
+
+// :id can be used as url params as after : the name is considered as variable name and we can access it using req.params
+app.get('/profile/:id',(req,res)=>{
+    
+    const {id} = req.params;
+    // Why we need :id along with route? -> because we need to update the entries of that particular user in our data base also we need to fetch that particular user if needed
+
+    db('app_user').where({
+        id : id
+      }).select('*').then(user => {
+          res.json(user)
+      })
+})
+
+
+
+
 
 app.listen(3002 , ()=>{
     console.log("app is running")
