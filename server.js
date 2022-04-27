@@ -3,6 +3,30 @@ const cors = require('cors')
 
 const app = express();
 
+const knex = require('knex')
+
+
+const postgress = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      port : 5432,
+      user : 'postgres',
+      password : 'ishan',
+      database : 'postgres'
+    }
+});
+
+
+console.log(postgress.select('*').from('app_user'))
+
+
+
+
+
+
+
+
 app.use(express.json()) //Middle Ware for parsing your requests to objects in JSON format, when we are passing the request in JSON 
 
 app.use(cors()) //Used so that no other or third party application can connect to our server
