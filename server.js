@@ -9,12 +9,14 @@ app.use(cors()) //Used so that no other or third party application can connect t
 
 const database = [
     {
+        id: 1,
         name: "Ishan",
         email: "i",
         password: "c",
         entries: 0
     }, 
     {
+        id: 2,
         name: "Rahul",
         email: "rahul17@gmail.com",
         password: "donkies",
@@ -30,6 +32,7 @@ app.get('/',(req,res)=>{
 app.post('/register',(req,res)=>{
     const {name,email,password} = req.body;
     user = {
+            id: database.length+1,
             name: name,
             email: email,
             password: password,
