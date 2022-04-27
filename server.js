@@ -49,12 +49,15 @@ app.post('/signin',(req,res)=>{
     res.status(200).json(database[0])
     }
     else{
-        res.status(400).json(false)
+        res.status(400).json('Error Logging In')
     }
 })
 
 // :id can be used as url params as after : the name is considered as variable name and we can access it using req.params
 app.put('/image:id',(req,res)=>{
+
+    // Why we need :id along with route? -> because we need to update the entries of that particular user in our data base also
+
     res.send(req.params)
 })
 
