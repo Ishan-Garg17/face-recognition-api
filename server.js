@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors')
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const app = express();
 
@@ -18,11 +20,19 @@ const db = knex({
 });
 
 
-const bcrypt = require('bcrypt');
-const { use } = require('bcrypt/promises');
-const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
+
+const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
+
+const res = require('express/lib/response');
+
+const stub = ClarifaiStub.grpc();
+
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key 034b49fff994465a944aa126a4c9ed21");
+
+
+
+
 
 
 
@@ -64,7 +74,6 @@ app.post('/register',(req,res)=>{
     })
 })
 
-    
        
 
 app.post('/signin',(req,res)=>{
@@ -74,7 +83,7 @@ app.post('/signin',(req,res)=>{
         // console.log(data)
       const isvalid =  bcrypt.compareSync(password, data[0].hash);
       if(isvalid){
-    return db('app_user').where('email','=',email).select('*')
+         return db('app_user').where('email','=',email).select('*')
         .then(user => res.json(user[0]))
       }
       else{
@@ -85,23 +94,68 @@ app.post('/signin',(req,res)=>{
 })
 
 
+
+
+//IMAGE ROUTE
+
+
+const handleApiCall  = (req,res)=>{
+    console.log(req.body.imageURL)
+stub.PostModelOutputs(
+    {
+        // This is the model ID of a publicly available General model. You may use any other public or custom model ID.
+        model_id: "a403429f2ddf4b49b307e318f00e528b",
+        inputs: [{data: {image: {url: `${req.body.imageURL}`}}}]
+    },
+    metadata,
+    (err, response) => {
+        if (err) {
+            console.log("Error: " + err);
+            return;
+        }
+
+        if (response.status.code !== 10000) {
+            console.log("Received failed status: " + response.status.description + "\n" + response.status.details);
+            return;
+        }
+        // .outputs[0].data.regions[0].region_info.bounding_box 
+        res.json(response.outputs[0].data.regions[0].region_info.bounding_box);
+    }
+);
+}
+
+
+
 app.put('/image',(req,res)=>{
 
+  handleApiCall(req,res);
+   
+})
+
+app.put('/rank',(req,res)=>{
+
     const {id} = req.body
-
-    // in order to increment a column value we can use .increment() function of  knex
-    // as with .update() there is a problem that we have to grab entries first from the databse adn then increase it and then update it so therefore we use .increment() function
-
+    console.log(id)
     db('app_user').where('id', '=', id)
     .increment('entries', 1)
-    .returning('entries')
-    .then(entries => res.json(entries[0].entries))
+    .then(entries=>{
+        res.json(entries)
+    })  //must write .then() statement in db commands as it will return a promis and without .then the promise will not get fulfilled
 
+    // in order to increment a column value we can use .increment() function of  knex
 
+    // as with .update() there is a problem that we have to grab entries first from the databse adn then increase it and then update it so therefore we use .increment() function
 
-
-
+   
 })
+
+
+
+
+
+
+
+
 
 
 
@@ -111,12 +165,8 @@ app.get('/profile/:id',(req,res)=>{
     
     const {id} = req.params;
     // Why we need :id along with route? -> because we need to update the entries of that particular user in our data base also we need to fetch that particular user if needed
-
-    db('app_user').where({
-        id : id
-      }).select('*').then(user => {
-          res.json(user)
-      })
+    console.log(id)
+   
 })
 
 
