@@ -38,7 +38,7 @@ app.post('/register', (req,res)=>{register.handleRegister(req,res,db,bcrypt,salt
 
 app.post('/signin',(req,res)=>{signin.handleSignin(req,res,bcrypt,db)})
 
-app.put('/image',(req,res)=>{image.handleImage(req,res,stub,metadata)})
+app.post('/image',(req,res)=>{image.handleImage(req,res,stub,metadata)})
 
 app.put('/rank',(req,res)=>{rank.handleRank(req,res,db)})  
 

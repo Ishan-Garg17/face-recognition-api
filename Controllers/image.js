@@ -12,7 +12,7 @@ const handleImage = (req, res, stub, metadata) => {
                 console.log("Error: " + err);
                 return;
             }
-
+            
             if (response.status.code !== 10000) {
                 console.log("Received failed status: " + response.status.description + "\n" + response.status.details);
                 return;
